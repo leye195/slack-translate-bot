@@ -66,6 +66,30 @@ def get_translate(text):
 
 app = App(token = SLACK_BOT_TOKEN, signing_secret = SLACK_SIGNING_SECRET)
 
+@app.event("app_mention")
+def handle_mention(event,client):
+    text = event['text']
+    translated_text = get_translate(text)
+
+    client.chat_postMessage(
+        channel = event['channel'],
+        attachments = [
+		    {
+			    "blocks": [
+				    {
+					    "type": "section",
+					    "text": {
+							"type": "mrkdwn",
+							"text": translated_text,
+						}
+				    }
+			    ]
+		    },
+	    ],
+        thread_ts = event['ts']
+    )
+
+
 @app.shortcut({"callback_id": "t_action", "type": "message_action"})
 def t_action(ack, shortcut, client):
     ack()
